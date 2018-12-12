@@ -1,10 +1,8 @@
 #[macro_use]
 extern crate clap;
 
-pub mod core;
-
-use self::core::GPUStatCollection;
 use clap::{App, Arg};
+use gpustat::GPUStatCollection;
 use std::thread;
 use std::time::Duration;
 
@@ -18,7 +16,12 @@ fn main() {
                 .short("i")
                 .default_value("1"),
         )
-        .arg(Arg::with_name("json").long("json").takes_value(false))
+        .arg(
+            Arg::with_name("json")
+                .long("json")
+                .takes_value(false)
+                .help("Print all the information in JSON format"),
+        )
         .get_matches();
 
     let interval = if matches.occurrences_of("interval") == 0 {

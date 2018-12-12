@@ -10,23 +10,29 @@ pub struct GPUStat {
     index: u32,
     uuid: String,
     name: String,
-    memory_info: MemoryInfo,
-    utilization_rates: Utilization,
+    memory_info: Option<MemoryInfo>,
+    utilization_rates: Option<Utilization>,
 }
 
 impl GPUStat {
-    pub fn new(index: u32, device: &Device) -> Result<GPUStat> {
-        Ok(GPUStat {
+    pub fn new(index: u32, device: &Device) -> GPUStat {
+        GPUStat {
             index: index,
-            uuid: device.uuid()?,
-            name: device.name()?,
-            memory_info: device.memory_info()?,
-            utilization_rates: device.utilization_rates()?,
-        })
+            uuid: device.uuid().unwrap(),
+            name: device.name().unwrap(),
+            memory_info: device.memory_info().ok(),
+            utilization_rates: device.utilization_rates().ok(),
+        }
     }
 
     pub fn update(&mut self, device: &Device) {
-        self.memory_info = device.memory_info().unwrap();
+        if self.memory_info.is_some() {
+            self.memory_info = device.memory_info().ok();
+        }
+
+        if self.utilization_rates.is_some() {
+            self.utilization_rates = device.utilization_rates().ok();
+        }
     }
 }
 
@@ -47,7 +53,7 @@ impl GPUStatCollection {
         let mut gpus = Vec::new();
 
         for i in 0..device_count {
-            gpus.push(GPUStat::new(i, &nvml.device_by_index(i)?)?);
+            gpus.push(GPUStat::new(i, &nvml.device_by_index(i)?));
         }
 
         let gpu_stat_collection = GPUStatCollection {
