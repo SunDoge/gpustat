@@ -1,0 +1,10 @@
+[package]
+name = "gpustat"
+version = "0.1.0"
+authors = ["SunDoge <384813529@qq.com>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.32"
+nvml-wrapper = "0.4"
+hostname = "0.1"
