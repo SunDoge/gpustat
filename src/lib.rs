@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 use hostname::get_hostname;
 use nvml_wrapper::error::Result;
 use nvml_wrapper::struct_wrappers::device::{MemoryInfo, Utilization};
@@ -42,6 +45,7 @@ pub struct GPUStatCollection {
     gpus: Vec<GPUStat>,
     hostname: String,
     query_time: SystemTime,
+    driver_version: String,
 }
 
 impl GPUStatCollection {
@@ -56,11 +60,14 @@ impl GPUStatCollection {
             gpus.push(GPUStat::new(i, &nvml.device_by_index(i)?));
         }
 
+        let driver_version = nvml.sys_driver_version()?;
+
         let gpu_stat_collection = GPUStatCollection {
             nvml,
             gpus,
             hostname: get_hostname().expect("fail to get hostname"),
             query_time: SystemTime::now(),
+            driver_version,
         };
 
         Ok(gpu_stat_collection)
