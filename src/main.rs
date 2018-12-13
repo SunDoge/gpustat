@@ -24,27 +24,29 @@ fn main() {
         )
         .get_matches();
 
+    // No loop
     let interval = if matches.occurrences_of("interval") == 0 {
         0
     } else {
         value_t!(matches.value_of("interval"), u64).unwrap()
     };
 
+    let mut gpu_stat = GPUStatCollection::new().unwrap();
+
     if interval > 0 {
         loop {
-            print_gpustat(matches.is_present("json"));
+            print_gpustat(&gpu_stat, matches.is_present("json"));
             thread::sleep(Duration::from_secs(interval));
+            gpu_stat.update();
         }
     } else {
-        print_gpustat(matches.is_present("json"));
+        print_gpustat(&gpu_stat, matches.is_present("json"));
     }
 }
 
-fn print_gpustat(json: bool) {
-    let gpu_stat = GPUStatCollection::new().unwrap();
-
+fn print_gpustat(gpu_stat: &GPUStatCollection, json: bool) {
     if json {
-        println!("{}", serde_json::to_string_pretty(&gpu_stat).unwrap());
+        println!("{}", serde_json::to_string_pretty(gpu_stat).unwrap());
     } else {
         println!("{:#?}", gpu_stat);
     }

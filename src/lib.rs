@@ -9,6 +9,15 @@ use nvml_wrapper::Device;
 use nvml_wrapper::NVML;
 
 #[derive(Debug, Serialize)]
+pub struct Process {
+    pid: u32,
+    gpu_memory_usage: u32,
+    command: String,
+    username: String,
+    container: String,
+}
+
+#[derive(Debug, Serialize)]
 pub struct GPUStat {
     index: u32,
     uuid: String,
@@ -20,6 +29,11 @@ pub struct GPUStat {
 
 impl GPUStat {
     pub fn new(index: u32, device: &Device) -> GPUStat {
+        let processes = device.running_compute_processes().unwrap_or(Vec::new());
+        for process in processes {
+            println!("{:?}", psutil::process::Process::new(process.pid as i32));
+        }
+
         GPUStat {
             index: index,
             uuid: device.uuid().unwrap(),
@@ -85,5 +99,7 @@ impl GPUStatCollection {
             let device = self.nvml.device_by_index(gpu.index).unwrap();
             gpu.update(&device);
         }
+
+        self.query_time = Local::now();
     }
 }
