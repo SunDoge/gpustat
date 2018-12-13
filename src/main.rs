@@ -41,11 +41,11 @@ fn main() {
 }
 
 fn print_gpustat(json: bool) {
-    let gpu_stats = GPUStatCollection::new().unwrap();
+    let gpu_stat = GPUStatCollection::new().unwrap();
 
     if json {
-
+        println!("{}", serde_json::to_string_pretty(&gpu_stat).unwrap());
     } else {
-        println!("{:#?}", gpu_stats);
+        println!("{:#?}", gpu_stat);
     }
 }

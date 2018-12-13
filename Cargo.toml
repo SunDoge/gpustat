@@ -6,8 +6,9 @@ edition = "2018"
 
 [dependencies]
 clap = "2.32"
-nvml-wrapper = "0.4"
+nvml-wrapper = { version = "0.4", features=["serde"] }
 hostname = "0.1"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }

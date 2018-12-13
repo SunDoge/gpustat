@@ -1,20 +1,21 @@
 #[macro_use]
 extern crate serde_derive;
 
+use chrono::{DateTime, Local};
 use hostname::get_hostname;
 use nvml_wrapper::error::Result;
-use nvml_wrapper::struct_wrappers::device::{MemoryInfo, Utilization};
+use nvml_wrapper::struct_wrappers::device::{MemoryInfo, ProcessInfo, Utilization};
 use nvml_wrapper::Device;
 use nvml_wrapper::NVML;
-use std::time::SystemTime;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct GPUStat {
     index: u32,
     uuid: String,
     name: String,
-    memory_info: Option<MemoryInfo>,
-    utilization_rates: Option<Utilization>,
+    memory: Option<MemoryInfo>,
+    utilization: Option<Utilization>,
+    processes: Vec<ProcessInfo>,
 }
 
 impl GPUStat {
@@ -23,28 +24,34 @@ impl GPUStat {
             index: index,
             uuid: device.uuid().unwrap(),
             name: device.name().unwrap(),
-            memory_info: device.memory_info().ok(),
-            utilization_rates: device.utilization_rates().ok(),
+            memory: device.memory_info().ok(),
+            utilization: device.utilization_rates().ok(),
+            processes: device.running_compute_processes().unwrap_or(Vec::new()),
         }
     }
 
     pub fn update(&mut self, device: &Device) {
-        if self.memory_info.is_some() {
-            self.memory_info = device.memory_info().ok();
+        if self.memory.is_some() {
+            self.memory = device.memory_info().ok();
         }
 
-        if self.utilization_rates.is_some() {
-            self.utilization_rates = device.utilization_rates().ok();
+        if self.utilization.is_some() {
+            self.utilization = device.utilization_rates().ok();
+        }
+
+        if let Ok(processes) = device.running_compute_processes() {
+            self.processes = processes;
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct GPUStatCollection {
+    #[serde(skip)]
     nvml: NVML,
     gpus: Vec<GPUStat>,
     hostname: String,
-    query_time: SystemTime,
+    query_time: DateTime<Local>,
     driver_version: String,
 }
 
@@ -66,7 +73,7 @@ impl GPUStatCollection {
             nvml,
             gpus,
             hostname: get_hostname().expect("fail to get hostname"),
-            query_time: SystemTime::now(),
+            query_time: Local::now(),
             driver_version,
         };
 
