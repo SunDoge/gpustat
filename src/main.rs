@@ -51,3 +51,29 @@ fn print_gpustat(gpu_stat: &GPUStatCollection, json: bool) {
         println!("{:#?}", gpu_stat);
     }
 }
+
+// fn main() -> nvml_wrapper::error::Result<()> {
+//     use nvml_wrapper::NVML;
+//     use std::thread;
+//     use std::time::Duration;
+
+//     let nvml = NVML::init()?;
+//     // Get the first `Device` (GPU) in the system
+//     let device0 = nvml.device_by_index(4)?;
+//     let device1 = nvml.device_by_index(5)?;
+
+//     println!("{:?}", device0.memory_info()?);
+//     println!("{:?}", device1.memory_info()?);
+//     thread::sleep(Duration::from_secs(1));
+//     println!("{:?}", device0.memory_info()?);
+//     println!("{:?}", device1.memory_info()?);
+//     thread::sleep(Duration::from_secs(1));
+//     println!("{:?}", device0.memory_info()?);
+//     println!("{:?}", device1.memory_info()?);
+//     thread::sleep(Duration::from_secs(1));
+//     println!("{:?}", device0.memory_info()?);
+//     println!("{:?}", device1.memory_info()?);
+//     thread::sleep(Duration::from_secs(1));
+
+//     Ok(())
+// }

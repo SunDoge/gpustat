@@ -124,7 +124,7 @@ impl GPUStatCollection {
 
         let device_count = nvml.device_count()?;
 
-        let mut gpus = Vec::new();
+        let mut gpus = Vec::with_capacity(device_count as usize);
 
         for i in 0..device_count {
             gpus.push(GPUStat::new(i, &nvml.device_by_index(i)?));
